@@ -40,7 +40,7 @@ class InstallSchema implements InstallSchemaInterface
                     ['nullable' => false, 'default' => '0'],
                     'Status'
                 )
-                ->setComment('Newsletter Coupon Table')
+                ->setComment('Newsletter Coupon Table');
             $installer->getConnection()->createTable($table);
         }
 
