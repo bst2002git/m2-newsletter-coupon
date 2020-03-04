@@ -34,11 +34,13 @@ class Subscriber extends \Magento\Newsletter\Model\Subscriber
          CustomerInterfaceFactory $customerFactory = null,
          DataObjectHelper $dataObjectHelper = null,
          \Magento\SalesRule\Api\RuleRepositoryInterface $ruleRepository,
-         \Magento\SalesRule\Model\CouponGenerator $couponGenerator
+         \Magento\SalesRule\Model\CouponGenerator $couponGenerator,
+         \Howard\NewsletterCoupon\Helper\Config $config
      ) {
          $this->_ruleRepository = $ruleRepository;
          $this->_couponGenerator = $couponGenerator;
-         
+         $this->config = $config;
+
          # parent constructor
          $this->_newsletterData = $newsletterData;
          $this->_scopeConfig = $scopeConfig;
@@ -55,7 +57,7 @@ class Subscriber extends \Magento\Newsletter\Model\Subscriber
          $this->customerRepository = $customerRepository;
          $this->customerAccountManagement = $customerAccountManagement;
          $this->inlineTranslation = $inlineTranslation;
-         parent::__construct($context, $registry, $newsletterData, $scopeConfig, $transportBuilder, $storeManager, $customerSession, $customerRepository, 
+         parent::__construct($context, $registry, $newsletterData, $scopeConfig, $transportBuilder, $storeManager, $customerSession, $customerRepository,
          $customerAccountManagement, $inlineTranslation,$resource, $resourceCollection, $data, $dateTime, $customerFactory, $dataObjectHelper);
      }
 
@@ -91,7 +93,7 @@ class Subscriber extends \Magento\Newsletter\Model\Subscriber
         )->setTemplateVars(
             [
                 'subscriber' => $this,
-                'coupon_code' => $this->generateCouponCode(2)
+                'coupon_code' => $this->generateCouponCode($this->config->ruleId())
             ]
         )->setFrom(
             $this->_scopeConfig->getValue(
@@ -111,20 +113,20 @@ class Subscriber extends \Magento\Newsletter\Model\Subscriber
     }
 
 
-    
+
 
     protected function generateCouponCode($rule_id)
     {
         $rule = $this->_ruleRepository->getById($rule_id);
-        
+
 
         $data = array(
             'rule_id' => $rule->getRuleId(),
             'qty' => '1',
-            'length' => '12',
+            'length' => '6',
             'format' => 'alphanum',
-            'prefix' => 'SEG',
-            'suffix' => 'WAY',
+            'prefix' => 'HOWARD',
+            'suffix' => 'YANG',
         );
         return $this->_couponGenerator->generateCodes($data)[0];
 
