@@ -61,56 +61,63 @@ class Subscriber extends \Magento\Newsletter\Model\Subscriber
          $customerAccountManagement, $inlineTranslation,$resource, $resourceCollection, $data, $dateTime, $customerFactory, $dataObjectHelper);
      }
 
-    public function sendConfirmationSuccessEmail()
-    {
-        if ($this->getImportMode()) {
-            return $this;
+
+      public function sendConfirmationSuccessEmail()
+      {
+        if (!$this->config->isEnabled()) {
+
+          parent::sendConfirmationSuccessEmail();
+
+        }else{
+          if ($this->getImportMode()) {
+              return $this;
+          }
+
+          if (!$this->_scopeConfig->getValue(
+              self::XML_PATH_SUCCESS_EMAIL_TEMPLATE,
+              \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+          ) || !$this->_scopeConfig->getValue(
+              self::XML_PATH_SUCCESS_EMAIL_IDENTITY,
+              \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+          )
+          ) {
+              return $this;
+          }
+
+          $this->inlineTranslation->suspend();
+
+          $this->_transportBuilder->setTemplateIdentifier(
+              $this->_scopeConfig->getValue(
+                  self::XML_PATH_SUCCESS_EMAIL_TEMPLATE,
+                  \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+              )
+          )->setTemplateOptions(
+              [
+                  'area' => \Magento\Framework\App\Area::AREA_FRONTEND,
+                  'store' => $this->_storeManager->getStore()->getId(),
+              ]
+          )->setTemplateVars(
+              [
+                  'subscriber' => $this,
+                  'coupon_code' => $this->generateCouponCode($this->config->ruleId())
+              ]
+          )->setFrom(
+              $this->_scopeConfig->getValue(
+                  self::XML_PATH_SUCCESS_EMAIL_IDENTITY,
+                  \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+              )
+          )->addTo(
+              $this->getEmail(),
+              $this->getName()
+          );
+          $transport = $this->_transportBuilder->getTransport();
+          $transport->sendMessage();
+
+          $this->inlineTranslation->resume();
+
+          return $this;
         }
-
-        if (!$this->_scopeConfig->getValue(
-            self::XML_PATH_SUCCESS_EMAIL_TEMPLATE,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-        ) || !$this->_scopeConfig->getValue(
-            self::XML_PATH_SUCCESS_EMAIL_IDENTITY,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-        )
-        ) {
-            return $this;
-        }
-
-        $this->inlineTranslation->suspend();
-
-        $this->_transportBuilder->setTemplateIdentifier(
-            $this->_scopeConfig->getValue(
-                self::XML_PATH_SUCCESS_EMAIL_TEMPLATE,
-                \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-            )
-        )->setTemplateOptions(
-            [
-                'area' => \Magento\Framework\App\Area::AREA_FRONTEND,
-                'store' => $this->_storeManager->getStore()->getId(),
-            ]
-        )->setTemplateVars(
-            [
-                'subscriber' => $this,
-                'coupon_code' => $this->generateCouponCode($this->config->ruleId())
-            ]
-        )->setFrom(
-            $this->_scopeConfig->getValue(
-                self::XML_PATH_SUCCESS_EMAIL_IDENTITY,
-                \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-            )
-        )->addTo(
-            $this->getEmail(),
-            $this->getName()
-        );
-        $transport = $this->_transportBuilder->getTransport();
-        $transport->sendMessage();
-
-        $this->inlineTranslation->resume();
-
-        return $this;
-    }
+      }
 
 
 
