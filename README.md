@@ -1,3 +1,5 @@
+The Module had only been tested on Magento 2.3.*
+
 -Installation:
 Please upload the module under app/code/Howard/NewsletterCoupon/
 
