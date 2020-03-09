@@ -1,12 +1,10 @@
 -Installation:
 Please upload the module under app/code/Howard/NewsletterCoupon/
 
-Afterwards, please run:
-php bin/magento setup:upgrade
-
-php bin/magento setup:di:compile
-
-php bin/magento cache:flush
+Afterwards, please run:<br/>
+php bin/magento setup:upgrade<br/>
+php bin/magento setup:di:compile<br/>
+php bin/magento cache:flush<br/>
 
 -Configuration:
 1. Please create your discount Cart Price Rules.
